@@ -1,0 +1,207 @@
+<div class="flex flex-col flex-auto min-w-0">
+
+    <!-- Header -->
+    <div
+        class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent">
+        <div class="flex-1 min-w-0">
+            <!-- Breadcrumbs -->
+            <div class="flex flex-wrap items-center font-medium">
+                <div>
+                    <a class="whitespace-nowrap text-primary-500">MySQL</a>
+                </div>
+                <div class="flex items-center ml-1 whitespace-nowrap">
+                    <mat-icon class="icon-size-5 text-secondary" [svgIcon]="'heroicons_solid:chevron-right'"></mat-icon>
+                    <a class="ml-1 text-primary-500">MongoDB</a>
+                </div>
+            </div>
+            <!-- Title -->
+            <div class="mt-2">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                    MySQL to MongoDB Migration
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Horizontal stepper -->
+    <!-- <div class="mt-16 mb-8 text-3xl font-bold text-center">Connection Wizard</div> -->
+
+    <form class="p-4 bg-card shadow rounded overflow-hidden" [formGroup]="horizontalStepperForm">
+        <mat-horizontal-stepper [linear]="true" #horizontalStepper>
+
+            <!-------------------------------------- STEP 1--------------------------------------->
+            <mat-step [formGroupName]="'step1'" [stepControl]="horizontalStepperForm.get('step1')"
+                #horizontalStepperStep1>
+                <ng-template matStepLabel>MySQL Connection Info</ng-template>
+                <p class="my-6 font-medium">
+                    Fill in MySQL credentials and validate connection
+                </p>
+
+                <div class="text-error"
+                    *ngIf="horizontalStepperForm.controls.step1.get('mysql_url').invalid && horizontalStepperForm.controls.step1.get('mysql_url').touched">
+                    Provide
+                    valid url</div>
+                <div class="flex">
+                    <mat-form-field class="flex-auto">
+                        <input matInput [formControlName]="'mysql_url'" [placeholder]="'Database URL'" required>
+                        <mat-icon class="icon-size-5" matPrefix [svgIcon]="'feather:database'"></mat-icon>
+                    </mat-form-field>
+                </div>
+
+                <div class="text-error"
+                    *ngIf="horizontalStepperForm.controls.step1.get('mysql_username').invalid && horizontalStepperForm.controls.step1.get('mysql_username').touched">
+                    Provide
+                    MySQL Username</div>
+                <div class="flex">
+                    <mat-form-field class="flex-auto">
+                        <input matInput [formControlName]="'mysql_username'" [placeholder]="'Username'" required>
+                        <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_outline:user'"></mat-icon>
+                    </mat-form-field>
+                </div>
+
+                <div class="text-error"
+                    *ngIf="horizontalStepperForm.controls.step1.get('mysql_password').invalid && horizontalStepperForm.controls.step1.get('mysql_password').touched">
+                    Provide
+                    MySQL Password</div>
+                <div class="flex">
+                    <mat-form-field class="flex-auto">
+                        <input matInput [formControlName]="'mysql_password'" [placeholder]="'Password'" type="password"
+                            required>
+                        <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_outline:lock-closed'"></mat-icon>
+                    </mat-form-field>
+                </div>
+                <div class="flex justify-end">
+                    <button class="px-8 mr-2" mat-flat-button [color]="'primary'" type="button"
+                        [disabled]="horizontalStepperStep1.stepControl.pristine || horizontalStepperStep1.stepControl.invalid"
+                        (click)="testMySQLConnection(horizontalStepper)">
+                        Test MySQL Connection
+                    </button>
+                    <!-- <button class="px-8" mat-flat-button [color]="'primary'" [disabled]="!mysqlConnectionSucceeded"
+                        type="button" matStepperNext>
+                        Next
+                    </button> -->
+                </div>
+            </mat-step>
+
+            <!-------------------------------------- STEP 2 --------------------------------------->
+            <mat-step [formGroupName]="'step2'" [stepControl]="horizontalStepperForm.get('step2')"
+                #horizontalStepperStep2>
+                <ng-template matStepLabel>MongoDB Connection Info</ng-template>
+                <p class="my-6 font-medium">
+                    Fill in MongoDB credentials and validate connection
+                </p>
+                <div class="text-error"
+                    *ngIf="horizontalStepperForm.controls.step2.get('mongodb_uri').invalid && horizontalStepperForm.controls.step2.get('mongodb_uri').touched">
+                    Provide
+                    valid uri</div>
+                <div class="flex">
+                    <mat-form-field class="flex-auto">
+                        <input matInput [formControlName]="'mongodb_uri'" [placeholder]="'URI'" required>
+                        <mat-icon class="icon-size-5" matPrefix [svgIcon]="'feather:link-2'"></mat-icon>
+                    </mat-form-field>
+                </div>
+                <div class="flex justify-end">
+                    <button class="px-8 mr-2" mat-stroked-button [color]="'accent'" type="button" matStepperPrevious>
+                        Back
+                    </button>
+                    <button class="px-8 mr-2" mat-flat-button [color]="'primary'" type="button"
+                        [disabled]="horizontalStepperStep1.stepControl.pristine || horizontalStepperStep1.stepControl.invalid"
+                        (click)="testMongoDBConnection(horizontalStepper)">
+                        Test MongoDB Connection
+                    </button>
+                    <!-- <button class="px-8" mat-flat-button [color]="'primary'"
+                        [disabled]="horizontalStepperStep2.stepControl.pristine || horizontalStepperStep2.stepControl.invalid"
+                        type="button" matStepperNext>
+                        Next
+                    </button> -->
+                </div>
+            </mat-step>
+
+            <!-------------------------------------- STEP 3 --------------------------------------->
+            <mat-step [formGroupName]="'step3'" [stepControl]="horizontalStepperForm.get('step3')"
+                #horizontalStepperStep3>
+                <ng-template matStepLabel>Configuration</ng-template>
+                <p class="my-6 font-medium">
+                    Configure some settings
+                </p>
+                <div class="flex flex-col gt-sm:flex-row">
+                    <div class="flex flex-col">
+                        <span class="font-medium mb-2">Select a MySQL Table</span>
+                        <mat-radio-group class="flex flex-col" [color]="'primary'"
+                            [formControlName]="'selectedMySQLTable'">
+                            <mat-radio-button class="mb-2" *ngFor="let table of MySQL_TABLES"
+                                (change)="updateSelectedMySQLTable(table)">
+                                {{table}}
+                            </mat-radio-button>
+                        </mat-radio-group>
+                    </div>
+                    <div class="flex flex-col mt-8 gt-sm:mt-0 gt-sm:ml-16">
+                        <span class="font-medium mb-2">Select a MongoDB database</span>
+                        <mat-radio-group class="flex flex-col" [color]="'primary'"
+                            [formControlName]="'selectedMongoDatabase'">
+                            <mat-radio-button class="mb-2" *ngFor="let db of AVAILABLE_MONGO_DATABASES"
+                                (change)="updateSelectedMongoDatabase(db)">
+                                {{db}}
+                            </mat-radio-button>
+                        </mat-radio-group>
+                        <div class="flex justify-left mt-8">
+                            <span class="font-medium mb-2"><a (click)="logger('Created')">or Create new MongoDB
+                                    database</a></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end mt-8">
+                    <button class="px-8 mr-2" mat-stroked-button [color]="'accent'" type="button" matStepperPrevious>
+                        Back
+                    </button>
+                    <!-- <button class="px-8" mat-flat-button [color]="'primary'" type="button" matStepperNext
+                        [disabled]="selectedMongoDatabase==='' || selectedMySQLTable===''"
+                        (click)="nextStep(horizontalStepper)">
+                        Start Migration
+                    </button> -->
+                    <button class="px-8" mat-flat-button [color]="'primary'" type="button" matStepperNext
+                        (click)="nextStep(horizontalStepper)">
+                        Start Migration
+                    </button>
+                </div>
+            </mat-step>
+
+            <!-------------------------------------- STEP 4 --------------------------------------->
+            <mat-step [formGroupName]="'step4'" [stepControl]="horizontalStepperForm.get('step4')"
+                #horizontalStepperStep4>
+                <ng-template matStepLabel>Done</ng-template>
+                <p class="my-6 font-medium">
+                    Thank you for completing our form! You can reset the form if you would like to change your
+                    information.
+                </p>
+                <div class="flex justify-end mt-8">
+                    <button class="px-8 mr-2" mat-flat-button [color]="'accent'" type="button" matStepperPrevious>
+                        Back
+                    </button>
+                    <button class="px-8" mat-flat-button [color]="'primary'" type="reset"
+                        (click)="horizontalStepper.reset();">
+                        Reset
+                    </button>
+                </div>
+            </mat-step>
+
+            <!-- <mat-step [formGroupName]="'step4'" [stepControl]="horizontalStepperForm.get('step4')">
+                <ng-template matStepLabel>Validation</ng-template>
+                <p class="my-6 font-medium">
+                    Thank you for using Mongo Migrate Tool !
+                </p>
+                <div class="flex justify-end mt-8">
+                    <button class="px-8 mr-2" mat-flat-button [color]="'accent'" type="button" matStepperPrevious>
+                        Back
+                    </button>
+                    <button class="px-8" mat-flat-button [color]="'primary'" type="reset"
+                        (click)="horizontalStepper.reset();">
+                        Try Another
+                    </button>
+                </div>
+            </mat-step> -->
+        </mat-horizontal-stepper>
+    </form>
+
+
+</div>
